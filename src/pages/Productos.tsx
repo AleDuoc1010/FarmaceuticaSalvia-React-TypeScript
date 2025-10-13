@@ -1,5 +1,3 @@
-import React from "react";
-
 const Productos: React.FC = () => {
     return (
         <div className="container mt-5 pt-5">

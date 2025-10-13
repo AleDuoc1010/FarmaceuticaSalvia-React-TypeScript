@@ -31,13 +31,13 @@ html, body {
 }
 
 .navbar a.nav-link {
-  color: #fff;
+  color: beige;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .navbar a.nav-link:hover {
-  color: #ffd700; /* amarillo brillante al pasar el mouse */
+  color: #043055; /* amarillo brillante al pasar el mouse */
 }
 
 /* Contenido central centrado */
@@ -50,7 +50,7 @@ html, body {
   text-align: center;        /* centra el texto */
   padding: 80px 20px 20px 20px; /* espacio para navbar */
   width: 100vw;
-  color: #fff; /* letras blancas sobre fondo azul */
+  color: #000000; /* letras blancas sobre fondo azul */
 }
 
 /* Footer fijo abajo */
