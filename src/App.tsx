@@ -70,7 +70,45 @@ function App() {
           </Routes>
         </div>
         <footer className="footer text-center py-3 bg-primary text-white">
-          &copy; 2024 Farmaceutica. All rights reserved.
+          <div className="container">
+            <div className="row">
+
+              
+              <div className="col-md-3 mb-4">
+                <h5>App Salvia</h5>
+                <hr />
+                <div className="d-flex flex-column gap-0">
+                  <Link to="/" className="text-white text-decoration-none mb-2">Home</Link>
+                  <Link to="/productos" className="text-white text-decoration-none mb-2">Productos</Link>
+                </div>
+              </div>
+
+              <div className="col-md-3 mb-4">
+                <h5>Salvia Empresa</h5>
+                <hr />
+                <ul className="list-unstyled">
+                  <li>Quienes Somos</li>
+                  <li>Transparencia</li>
+                  <li>Prensa</li>
+                  <li>Trabaja con Nosotros</li>
+                </ul>
+              </div>
+
+              <div className="col-md-3 mb-4">
+                <h5>Atención al Cliente</h5>
+                <hr />
+                <ul className="list-unstyled">
+                  <li>Centro de Ayuda</li>
+                  <li>Envios y Entregas</li>
+                  <li>Devoluciones</li>
+                  <li>Estado del Pedido</li>
+                  <li>Opciones de Pago</li>
+                </ul>
+              </div>
+
+
+            </div>
+          </div>
         </footer>
       </div>
     </>
