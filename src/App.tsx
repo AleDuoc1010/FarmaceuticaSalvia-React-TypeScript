@@ -11,50 +11,65 @@ function App() {
   return (
     <>
       <div className="app-container">
-        <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top w-100 shadow">
+        <nav className="navbar navbar-expand-lg mi-navbar">
           <div className="container-fluid">
-            <Link className="navbar-brand fw-bold" to="/">
-              Farmaceutica
+
+            <Link className="navbar-brand" to="/">
+              <img src="/logo_farmacia.png" alt="Logo" width="40" height="40" className="d-inline-block align-text-top" />
+              Salvia
             </Link>
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
+            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
-            <div className="collapse navbar-collapse" id="navbarNav">
-              <ul className="navbar-nav ms-auto">
+
+            <div className="collapse navbar-collapse" id="navbarTogglerDemo02">
+              <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+
                 <li className="nav-item">
-                  <Link className="nav-link" to="/"> Home</Link>
+                  <Link className="nav-link active" to="/"> Home</Link>
                 </li>
+
                 <li className="nav-item">
-                  <Link className="nav-link" to="/productos">
+                  <Link className="nav-link active" to="/productos">
                     Productos
                   </Link>                
                 </li>
+
                 <li className="nav-item">
-                  <Link className="nav-link" to="/ubicacion">
+                  <Link className="nav-link active" to="/ubicacion">
                     Ubicación
                   </Link>                
                 </li>
+
                 <li className="nav-item">
-                  <Link className="nav-link" to="/Carrito">
+                  <Link className="nav-link active" to="/Carrito">
                     Carrito
                   </Link>                
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/Historial">
+                  <Link className="nav-link active" to="/Historial">
                     Historial
                   </Link>                
                 </li>
+
                 <li className="nav-item">
-                  <Link className="nav-link" to="/Login">
+                  <Link className="nav-link active" to="/Login">
                     Login
                   </Link>                
                 </li>
+
                 <li className="nav-item">
                   <Link className="nav-link" to="/Register">
                     Register
                   </Link>
                 </li>
-              </ul> 
+              </ul>
+               
+              <form className="d-flex">
+                <input className="form-control me-2" type="Buscar..." placeholder="Buscar..." aria-label="Buscar"/>
+                 <button className="btn btn-outline-success">Search</button>
+              </form>
             </div>
           </div>
         </nav>
@@ -69,7 +84,8 @@ function App() {
             <Route path="/Register" element={<Register />} />  
           </Routes>
         </div>
-        <footer className="footer text-center py-3 bg-primary text-white">
+
+        <footer className="footer-salvia text-light pt-5">
           <div className="container">
             <div className="row">
 
@@ -78,8 +94,8 @@ function App() {
                 <h5>App Salvia</h5>
                 <hr />
                 <div className="d-flex flex-column gap-0">
-                  <Link to="/" className="text-white text-decoration-none mb-2">Home</Link>
-                  <Link to="/productos" className="text-white text-decoration-none mb-2">Productos</Link>
+                  <Link to="/"><img src="/App_Store_(iOS)-Badge-Logo.wine.svg" alt="App store" width="200" /></Link>
+                  <Link to="/"><img src="/pngtree-google-play-app-icon-vector-png-image_9183316.png" alt="Google play" width="200"/></Link>
                 </div>
               </div>
 
@@ -106,7 +122,19 @@ function App() {
                 </ul>
               </div>
 
+              <div className="col-md-3 mb-4">
+                <h5>Contactanos</h5>
+                <hr />
+                <p>
+                  Dejanos tu consulta <Link to="/">Aqui</Link><br />
+                  Llamanos al <strong>800 802 800</strong><br />
+                  Desde celulares <strong>*7700</strong>
+                </p>
+              </div>
+            </div>
 
+            <div className="text-center mt-3">
+              <p className="mb-0">&copy; 2024 Farmaceutica. Todos los derechos reservados.</p>
             </div>
           </div>
         </footer>

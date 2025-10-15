@@ -1,13 +1,60 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Barra de arriba */
+.mi-navbar {
+  background-color: rgb(23, 23, 205) !important; /* azul fuerte */
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.mi-navbar .navbar-brand,
+.mi-navbar .nav-link,
+.mi-navbar .nav-link.active {
+  color: beige !important; /* letras beige */
+}
+
+/* Cambio de color de los links en la barra */
+.mi-navbar .nav-link:hover {
+  color: #87cefa !important; /* azul claro (skyblue) */
+}
+
+.mi-navbar .navbar-toggler {
+  color: beige !important; /* color del icono del menú en móvil */
+  border-color: beige !important; /* borde del icono del menú en móvil */
+  background-color: transparent !important; /* fondo del icono del menú en móvil */
+  outline: none !important; /* elimina el borde azul al hacer clic */
+  box-shadow: none !important; /* elimina el borde azul al hacer clic */
+}
+
+.mi-navbar .navbar-toggler:hover {
+  background-color: transparent !important;
+  color: rgb(212, 212, 201) !important;
+}
+
+.mi-navbar .navbar-toggler-icon {
+  /* Configuración para cambiar el color de las barras del icono */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(245, 245, 220)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Configuración de color del botón 'Search' */
+.mi-navbar .btn {
+  border-color: beige;
+  color: beige;
+}
+
+.mi-navbar .btn:hover {
+  background-color: beige;
+  color: rgb(23, 23, 205);
+}
+
+.mi-navbar .navbar-brand img {
+  border-radius: 8px; /* esquinas redondeadas */
+}
+
+/*titulo producto*/
+.titulo-productos-fondo{
+  background-color: rgb(23, 23, 205);
+  color: beige;
+}
+
+
+body {  
   background-color: beige;
 }
 
@@ -25,7 +72,7 @@ html, body {
   left: 0;
   width: 100%;
   z-index: 1000;
-  background-color: rgba(26, 31, 113, 0.95); /* azul oscuro semitransparente */
+  background-color: rgba(0, 12, 232, 0.95); /* azul oscuro semitransparente */
   color: white;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
@@ -53,15 +100,125 @@ html, body {
   color: #000000; /* letras blancas sobre fondo azul */
 }
 
-/* Footer fijo abajo */
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  background-color: rgba(26, 31, 113, 0.95);
-  color: #fff;
-  text-align: center;
-  padding: 12px 0;
-  z-index: 999;
+.carousel-item img {
+  object-fit: cover;
+  height: 450px;
+  border-radius: 10px;
+}
+
+.carousel-indicators button {
+  background-color: beige !important;
+}
+
+/* Footer */
+
+.footer-salvia {
+  background-color: rgb(23, 23, 205); /* azul fuerte */
+  padding-top: 40px;
+  font-size: 15px;
+  margin-top: 50px;
+}
+
+.footer-salvia h5 {
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.footer-salvia Link{
+  color: beige;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-salvia Link:hover {
+  color: #87cefa;
+  text-decoration: underline;
+}
+
+.footer-salvia hr {
+  border-top: 2px solid #87cefa;
+  width: auto;
+}
+
+.footer-salvia .social-icons a {
+  font-size: 1.5rem;
+  color: beige;
+  transition: 0.3s ease;
+}
+
+.footer-salvia .social-icons a:hover {
+  color: #87cefa;
+  transform: scale(1.1);
+}
+
+/* Tarjetas */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 18px rgba(0,0,0,0.2);
+}
+
+.card-title {
+  color: rgb(23, 23, 205);
+  font-weight: bold;
+}
+
+.card .btn {
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-weight: 500;
+}
+
+/* Formularios */
+form input,
+form select {
+  border-radius: 8px;
+}
+
+form button {
+  border-radius: 25px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+form button:hover {
+  transform: scale(1.03);
+}
+
+/* Listas historial y carrito */
+.list-group-item {
+  border: none;
+  background-color: #f9f9ff;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 3px 8px rgba(0,0,0,0.08);
+  padding: 15px;
+}
+
+/* Mapa */
+.ratio iframe {
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Botones */
+.btn-outline-primary {
+  border-radius: 25px;
+}
+
+.btn-success,
+.btn-primary {
+  border-radius: 25px;
+  transition: transform 0.3s ease;
+}
+
+.btn-success:hover,
+.btn-primary:hover {
+  transform: scale(1.05);
 }
