@@ -58,12 +58,6 @@ function App() {
                     Login
                   </Link>                
                 </li>
-
-                <li className="nav-item">
-                  <Link className="nav-link" to="/Register">
-                    Register
-                  </Link>
-                </li>
               </ul>
                
               <form className="d-flex">
@@ -81,7 +75,7 @@ function App() {
             <Route path="/Carrito"   element={<Carrito />} />
             <Route path="/Historial" element={<Historial />} />
             <Route path="/Login" element={<Login />} />
-            <Route path="/Register" element={<Register />} />  
+            <Route path="/Register" element={<Register />} />
           </Routes>
         </div>
 
