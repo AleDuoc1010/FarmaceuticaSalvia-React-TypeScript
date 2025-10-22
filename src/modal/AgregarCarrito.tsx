@@ -8,11 +8,29 @@ export const AgregarCarrito: React.FC<AgregarCarritoProps> = ({ productoSeleccio
 
     const [cantidad, setCantidad] = useState(1);
     const [nombre, setNombre] = useState("");
+    const [error, setError] = useState({
+        cantidad: "",
+    });
+
+    const validarFormulario = () => {
+        const nuevoError = {
+            cantidad: "",
+        };
+        let esValido = true;
+
+        if (cantidad < 1 || !cantidad) {
+            nuevoError.cantidad = "La cantidad debe ser al menos 1.";
+            esValido = false;
+        }
+        setError(nuevoError);
+        return esValido;
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!productoSeleccionado) return;
+        if (!validarFormulario()) return;
 
         const nuevoProducto = {
             producto: productoSeleccionado,
@@ -61,7 +79,10 @@ export const AgregarCarrito: React.FC<AgregarCarritoProps> = ({ productoSeleccio
 
                             <div className="mb-3">
                                 <label className="form-label">Cantidad</label>
-                                <input type="number" className="form-control" placeholder="Cantidad" min={1} value={cantidad} onChange={(e) => setCantidad(parseInt(e.target.value))} required/>
+                                <input type="number" className={`form-control ${error.cantidad ? "is-invalid" : ""}`} placeholder="Cantidad" min={1} value={cantidad} onChange={(e) => setCantidad(parseInt(e.target.value))}/>
+                                {error.cantidad && (
+                                <div className="text-danger small mt-1">{error.cantidad}</div>
+                                )}
                             </div>
 
                             <button type="submit" className="btn btn-primary">Añadir al carrito</button>

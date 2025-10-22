@@ -65,7 +65,7 @@ export const Compra: React.FC<CompraProps> = ({ productoSeleccionado }) => {
     }
 
     // 🔹 Validar cantidad
-    if (cantidad < 1) {
+    if (cantidad < 1 || !cantidad) {
       nuevoError.cantidad = "La cantidad debe ser al menos 1.";
       esValido = false;
     }
