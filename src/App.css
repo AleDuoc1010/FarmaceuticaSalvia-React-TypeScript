@@ -114,6 +114,11 @@ body {
   opacity: 1;
 }
 
+.carousel {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  border-radius: 0;
+}
 
 /* --- Indicadores (los puntos abajo) --- */
 .carousel-indicators {
