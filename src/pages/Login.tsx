@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login, recuperarClave } from "../scripts/forms";
 
-const Login: React.FC = () => {
+type LoginProps = {
+  onLoginSuccess?: () => void;
+};
+
+const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState({ email: "", password: "", general: "" });
@@ -45,7 +49,13 @@ const Login: React.FC = () => {
 
     if (ok) {
       alert("Inicio de sesión exitoso.");
+
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+
       navigate("/"); // redirige al home
+
     } else {
       setError((prev) => ({
         ...prev,
@@ -66,7 +76,7 @@ const Login: React.FC = () => {
       <h2 className="text-center mb-4">Iniciar Sesión</h2>
       <form onSubmit={handleLogin} noValidate className="p-4 border rounded bg-light shadow">
         <div className="mb-3">
-          <label className="form-label">Correo</label>
+          <label className="form-label" htmlFor="email">Correo</label>
           <input
             type="email"
             className={`form-control ${error.email ? "is-invalid" : ""}`}
@@ -79,7 +89,7 @@ const Login: React.FC = () => {
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Contraseña</label>
+          <label className="form-label" htmlFor="password">Contraseña</label>
           <input
             type="password"
             className={`form-control ${error.password ? "is-invalid" : ""}`}
