@@ -4,6 +4,12 @@ import { MemoryRouter } from "react-router-dom";
 
 import Login from "../pages/Login";
 
+
+vi.mock("../scripts/forms", () => ({
+  login: vi.fn(() => true),           // simulamos que el login fue exitoso
+  recuperarClave: vi.fn(() => null),
+}));
+
 describe("Login Component", () => {
   it("renders login form", () => {
     render(
@@ -40,11 +46,11 @@ describe("Login Component", () => {
             target: { value: "password123" },
         });
         fireEvent.click(screen.getByRole("button", { name: /Iniciar Sesión/i }));
-        expect(await screen.findByText(/Formato de correo electrónico inválido./i)).toBeInTheDocument();
+        expect(await screen.findByText(/El formato del correo no es válido/i)).toBeInTheDocument();
   })
 
   it("calls login function with correct data", async () => {
-    const onLoginSuccess = vi.fn().mockReturnValue(true);
+    const onLoginSuccess = vi.fn();
     render(
         <MemoryRouter>
             <Login onLoginSuccess ={onLoginSuccess} />

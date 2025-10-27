@@ -78,6 +78,7 @@ const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
         <div className="mb-3">
           <label className="form-label" htmlFor="email">Correo</label>
           <input
+            id="email"
             type="email"
             className={`form-control ${error.email ? "is-invalid" : ""}`}
             value={email}
@@ -91,6 +92,7 @@ const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
         <div className="mb-3">
           <label className="form-label" htmlFor="password">Contraseña</label>
           <input
+            id="password"
             type="password"
             className={`form-control ${error.password ? "is-invalid" : ""}`}
             value={password}
