@@ -6,6 +6,7 @@ import Carrito from "./pages/Carrito";
 import Historial from "./pages/Historial";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import SobreNosotros from "./pages/SobreNosotros";
 
 function App() {
   return (
@@ -58,6 +59,13 @@ function App() {
                     Login
                   </Link>                
                 </li>
+
+                <li className="nav-item">
+                  <Link className="nav-link active" to="/SobreNosotros">
+                    Nosotros
+                  </Link>                
+                </li>
+
               </ul>
                
               <form className="d-flex">
@@ -76,6 +84,7 @@ function App() {
             <Route path="/Historial" element={<Historial />} />
             <Route path="/Login" element={<Login />} />
             <Route path="/Register" element={<Register />} />
+            <Route path="/SobreNosotros" element={<SobreNosotros/>} />
           </Routes>
         </div>
 

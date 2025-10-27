@@ -282,3 +282,39 @@ form button:hover {
   object-fit: contain;
   margin-top: 20px;
 }
+
+.productos-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: transparent !important;
+}
+
+/*pagina nueva*/
+.sobre-nosotros-page {
+  color: #333;
+  background-color: #f7f9fb;
+  padding-bottom: 50px;
+}
+
+.video-recuadro {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-sobre-nosotros {
+  width: 80%;
+  max-width: 800px;
+  border-radius: 20px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.25);
+  border: 3px solid #b0d4e3;
+}
+
+.texto-sobre-nosotros {
+  max-width: 900px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
