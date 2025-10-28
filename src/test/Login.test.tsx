@@ -6,12 +6,12 @@ import Login from "../pages/Login";
 
 
 vi.mock("../scripts/forms", () => ({
-  login: vi.fn(() => true),           // simulamos que el login fue exitoso
+  login: vi.fn(() => true),           // el posible login funcionando
   recuperarClave: vi.fn(() => null),
 }));
 
-describe("Login Component", () => {
-  it("renders login form", () => {
+describe("Componente Login", () => {
+  it("Renderiza correctamente el formulario de iniciar sesion", () => {
     render(
         <MemoryRouter>
             <Login />
@@ -22,7 +22,7 @@ describe("Login Component", () => {
     expect(screen.getByRole("button", { name: /Iniciar Sesión/i })).toBeInTheDocument();
   });
 
-  it("shows error messages for empty fields", async () => {
+  it("Muestra mensaje de error si los campos están vacios", async () => {
     render(
         <MemoryRouter>
             <Login />
@@ -33,7 +33,7 @@ describe("Login Component", () => {
         expect(await screen.findByText(/La contraseña no puede estar vacía/i)).toBeInTheDocument();
   });
 
-  it("shows error for invalid email format", async () => {
+  it("Muestra mensaje de error si el formato del correo no es valido", async () => {
     render(
         <MemoryRouter>
             <Login />
@@ -49,7 +49,7 @@ describe("Login Component", () => {
         expect(await screen.findByText(/El formato del correo no es válido/i)).toBeInTheDocument();
   })
 
-  it("calls login function with correct data", async () => {
+  it("LLama a la funcion de login con los datos correctos", async () => {
     const onLoginSuccess = vi.fn();
     render(
         <MemoryRouter>
