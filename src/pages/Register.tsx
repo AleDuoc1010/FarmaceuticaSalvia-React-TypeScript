@@ -29,10 +29,29 @@ const Register: React.FC = () => {
       return;
     }
 
+    const nombreValido = /^[a-zA-Z\s]+$/;
+    if (!nombreValido.test(nombre)) {
+      setError("El nombre solo puede contener letras y espacios");
+      return;
+    }
+
     // Validar formato de correo
     const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!correoValido.test(email)) {
       setError("El formato del correo no es válido");
+      return;
+    }
+
+    // Validar formato de teléfono (solo dígitos, mínimo 9 caracteres)
+    const telefonoValido = /^\d{9,9}$/;
+    if (!telefonoValido.test(phone) || phone.length < 9 || phone.length > 9) {
+      setError("El formato del teléfono no es válido");
+      return;
+    }
+
+    // Validar longitud de contraseña (mínimo 6 caracteres)
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
 

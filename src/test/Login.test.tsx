@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -11,6 +11,16 @@ vi.mock("../scripts/forms", () => ({
 }));
 
 describe("Componente Login", () => {
+
+
+    beforeEach(() => {
+        vi.spyOn(window, 'alert').mockImplementation(() => {});
+    });
+    afterEach(() => {
+        vi.clearAllMocks();
+    });
+
+
   it("Renderiza correctamente el formulario de iniciar sesion", () => {
     render(
         <MemoryRouter>
@@ -64,5 +74,7 @@ describe("Componente Login", () => {
         });
         fireEvent.click(screen.getByRole("button", { name: /Iniciar Sesión/i }));
         expect(onLoginSuccess).toHaveBeenCalledWith();
+
+        expect(window.alert).toHaveBeenCalledWith("Inicio de sesión exitoso.");
   });
 });

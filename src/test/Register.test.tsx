@@ -1,16 +1,25 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 import Register from "../pages/Register";
+import { register } from "../scripts/forms";
 
 
 
 vi.mock("../scripts/forms", () => ({
-  register: vi.fn(() => true),           // simulamos que el registro fue exitoso
+  register: vi.fn(() => true),
 }));
 
 describe("Componente registro", () => {
+
+    beforeEach(() => {
+        vi.spyOn(window, 'alert').mockImplementation(() => {});
+    });
+    afterEach(() => {
+        vi.clearAllMocks();
+    });
+
   it("Muestra el formulario de registro", () => {
     render(
         <MemoryRouter>
@@ -32,9 +41,6 @@ describe("Componente registro", () => {
     );
         fireEvent.click(screen.getByRole("button", { name: /Registrarse/i }));
         expect(await screen.findByText(/El nombre no puede estar vacío/i)).toBeInTheDocument();
-        expect(await screen.findByText(/El correo no puede estar vacío/i)).toBeInTheDocument();
-        expect(await screen.findByText(/El teléfono no puede estar vacío/i)).toBeInTheDocument();
-        expect(await screen.findByText(/La contraseña no puede estar vacía/i)).toBeInTheDocument();
   });
 
   it("Muestra mensaje de error si el formato del correo es invalido", async () => {
@@ -78,11 +84,14 @@ describe("Componente registro", () => {
             target: { value: "password123" },
         });
         fireEvent.click(screen.getByRole("button", { name: /Registrarse/i }));
-        expect(require("../scripts/forms").register).toHaveBeenCalledWith({
+
+        expect(register).toHaveBeenCalledWith({
             nombre: "Stefania",
             email: "stefania@gmail.com",
             phone: "987654321",
             password: "password123",
         });
+
+        expect(window.alert).toHaveBeenCalledWith("Registro exitoso");
   });
 });
