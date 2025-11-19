@@ -1,64 +1,60 @@
-interface Usuario {
+import { usuariosApi } from "../api/axiosConfig";
+
+export interface RegisterData {
   nombre: string;
   email: string;
   phone: string;
   password: string;
 }
 
-const usuariosKey = "usuarios";
-const usuariosSession = "sesionUsuario";
+export interface LoginData {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  usuario: {
+    uuid: string;
+    nombre: string;
+    email: string;
+    rol: string;
+  };
+}
 
 // REGISTRAR USUARIO
-export function register(usuario: Usuario): boolean {
-  let usuarios: Usuario[] = [];
-
-  // Leer usuarios existentes
-  const data = localStorage.getItem(usuariosKey);
-  if (data) {
-    usuarios = JSON.parse(data);
-    // Evitar registro duplicado
-    if (usuarios.some((u) => u.email === usuario.email)) return false;
-  }
-
-  // Agregar nuevo usuario
-  usuarios.push(usuario);
-  localStorage.setItem(usuariosKey, JSON.stringify(usuarios));
-  return true;
-}
+export const register = async (data: RegisterData): Promise<any> => {
+  const response = await usuariosApi.post("/usuarios/register", data);
+  return response.data;
+};
 
 // INICIAR SESIÓN
-export function login(email: string, password: string): boolean {
-  const data = localStorage.getItem(usuariosKey);
-  if (!data) return false;
+export const login = async (data: LoginData): Promise<LoginResponse> => {
+  const response = await usuariosApi.post<LoginResponse>("/usuarios/login", data);
 
-  const usuarios: Usuario[] = JSON.parse(data);
-  const usuario = usuarios.find(
-    (u) => u.email === email && u.password === password
-  );
+  if (response.data.token) {
+    localStorage.setItem("token", response.data.token);
 
-  if (usuario) {
-    localStorage.setItem(usuariosSession, JSON.stringify(usuario));
-    return true;
+    localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
   }
-  return false;
-}
+
+  return response.data;
+};
 
 // SESIÓN ACTIVA
-export function sesionActiva(): boolean {
-  return localStorage.getItem(usuariosSession) !== null;
-}
+export const sesionActiva = (): boolean => {
+  return localStorage.getItem("token") !== null;
+};
 
 // CERRAR SESIÓN
-export function Logout(): void {
-  localStorage.removeItem(usuariosSession);
-}
+export const Logout = (): void => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("usuario");
+  window.location.href = "/login";
+};
 
 // RECUPERAR CONTRASEÑA
-export function recuperarClave(email: string): string | null {
-  const data = localStorage.getItem(usuariosKey);
-  if (!data) return null;
-
-  const usuarios: Usuario[] = JSON.parse(data);
-  const usuario = usuarios.find((u) => u.email === email);
-  return usuario ? usuario.password : null;
+export const recuperarClave = async (email: string): Promise<void> => {
+  console.log("Funcionalidad no implementada en backend para: ", email);
+  return Promise.resolve()
 }

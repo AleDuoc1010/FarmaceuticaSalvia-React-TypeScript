@@ -1,71 +1,85 @@
 import { useState } from "react";
-import { register } from "../scripts/forms";
+import { register, type RegisterData} from "../scripts/forms";
+import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Register: React.FC = () => {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ nombre: "", email: "", phone: "", password: "", general: ""});
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError({nombre: "", email: "", phone: "", password: "", general: ""})
+    let hayErrores = false;
+    const nuevosErrores = { nombre: "", email: "", phone: "", password: "", general: ""}
 
     // Validaciones campo a campo
-    if (!nombre) {
-      setError("El nombre no puede estar vacío");
-      return;
-    }
-    if (!email) {
-      setError("El correo no puede estar vacío");
-      return;
-    }
-    if (!phone) {
-      setError("El teléfono no puede estar vacío");
-      return;
-    }
-    if (!password) {
-      setError("La contraseña no puede estar vacía");
-      return;
-    }
 
     const nombreValido = /^[a-zA-Z\s]+$/;
-    if (!nombreValido.test(nombre)) {
-      setError("El nombre solo puede contener letras y espacios");
-      return;
+    if (!nombre.trim()) {
+      nuevosErrores.nombre = "El nombre no puede estar vacío";
+      hayErrores = true;
+    } else if (!nombreValido.test(nombre)) {
+      nuevosErrores.nombre = "El nombre solo puede contener letras y espacios";
+      hayErrores = true;
+    } else if (nombre.length < 3) {
+      nuevosErrores.nombre = "El nombre debe contener más de 2 caracteres"
+      hayErrores = true
     }
 
-    // Validar formato de correo
     const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!correoValido.test(email)) {
-      setError("El formato del correo no es válido");
-      return;
+    if (!email.trim()) {
+      nuevosErrores.email = "El correo no puede estar vacío";
+      hayErrores = true;
+    } else if (!correoValido.test(email)) {
+      nuevosErrores.email = "El formato del correo no es válido";
+      hayErrores = true;
     }
 
-    // Validar formato de teléfono (solo dígitos, mínimo 9 caracteres)
     const telefonoValido = /^\d{9,9}$/;
-    if (!telefonoValido.test(phone) || phone.length < 9 || phone.length > 9) {
-      setError("El formato del teléfono no es válido");
-      return;
+    if (!phone.trim()) {
+      nuevosErrores.phone = "El teléfono no puede estar vacío";
+      hayErrores = true;
+    } else if (!telefonoValido.test(phone)) {
+      nuevosErrores.phone = "El teléfono debe tener 9 dígitos numéricos";
+      hayErrores = true;
     }
 
-    // Validar longitud de contraseña (mínimo 6 caracteres)
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      return;
+    if (!password.trim()) {
+      nuevosErrores.password = "La contraseña no puede estar vacía";
+      hayErrores = true;
+    } else if (password.length < 6) {
+      nuevosErrores.password = "La contraseña debe tener al menos 6 caracteres";
+      hayErrores = true;
+    }
+
+    if(hayErrores){
+      setError(nuevosErrores);
+      return
     }
 
     // Registrar usuario
-    const exito = register({ nombre, email, phone, password });
-    if (exito) {
-      alert("Registro exitoso");
-      setError("");
-      setNombre("");
-      setEmail("");
-      setPhone("");
-      setPassword("");
-    } else {
-      setError("El usuario ya está registrado");
+    try {
+      const data: RegisterData = { nombre, email, phone, password};
+
+      await register(data);
+
+      alert("Registro exitoso. Ahora puedes iniciar sesión");
+      navigate("/login");
+
+    } catch (err) {
+      const errorAxios = err as AxiosError;
+
+      if (errorAxios.response?.status === 409) {
+        setError(prev => ({ ...prev, general: "El correo electronico ya está registrado."}));
+      } else {
+        setError(prev => ({ ...prev, general: "Ocurrió un error al registrarse. Intente nuevamente."}));
+        console.error(err)
+      }
     }
   };
 
@@ -84,10 +98,13 @@ const Register: React.FC = () => {
           <input
             type="text"
             id="nombre"
-            className="form-control"
+            className={`form-control ${error.nombre ? "is-invalid" : ""}`}
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
           />
+          {error.nombre && (
+            <div className="text-danger small mt-1">{error.nombre}</div>
+          )}
         </div>
 
         <div className="mb-3">
@@ -97,10 +114,13 @@ const Register: React.FC = () => {
           <input
             type="email"
             id="email"
-            className="form-control"
+            className={`form-control ${error.email ? "is-invalid" : ""}`}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {error.email && (
+            <div className="text-danger small mt-1">{error.email}</div>
+          )}
         </div>
 
         <div className="mb-3">
@@ -110,10 +130,13 @@ const Register: React.FC = () => {
           <input
             type="tel"
             id="phone"
-            className="form-control"
+            className={`form-control ${error.phone ? "is-invalid" : ""}`}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
+          {error.phone && (
+            <div className="text-danger small mt-1">{error.phone}</div>
+          )}
         </div>
 
         <div className="mb-3">
@@ -123,13 +146,18 @@ const Register: React.FC = () => {
           <input
             type="password"
             id="password"
-            className="form-control"
+            className={`form-control ${error.password ? "is-invalid" : ""}`}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {error.password && (
+            <div className="text-danger small mt-1">{error.password}</div>
+          )}
         </div>
 
-        {error && <p className="text-danger">{error}</p>}
+        {error.general && (
+          <div className="alert alert-danger">{error.general}</div>
+        )}
 
         <button type="submit" className="btn btn-primary w-100">
           Registrarse

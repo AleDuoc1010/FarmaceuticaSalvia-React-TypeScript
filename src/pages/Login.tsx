@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login, recuperarClave } from "../scripts/forms";
+import { login } from "../scripts/forms";
+import { AxiosError } from "axios";
 
 type LoginProps = {
   onLoginSuccess?: () => void;
@@ -13,116 +14,117 @@ const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
   const navigate = useNavigate();
 
   // 🔹 Validar formulario antes de intentar iniciar sesión
-  const validarFormulario = () => {
-    const nuevoError = { email: "", password: "", general: "" };
-    let esValido = true;
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!email.trim()) {
-      nuevoError.email = "El correo no puede estar vacío";
-      esValido = false;
-    } else if (!emailRegex.test(email)) {
-      nuevoError.email = "El formato del correo no es válido";
-      esValido = false;
-    }
-
-    if (!password.trim()) {
-      nuevoError.password = "La contraseña no puede estar vacía";
-      esValido = false;
-    } else if (password.length < 6) {
-      nuevoError.password = "La contraseña debe tener al menos 6 caracteres";
-      esValido = false;
-    }
-
-    setError(nuevoError);
-    return esValido;
-  };
-
-  // 🔹 Intentar iniciar sesión
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError({ email: "", password: "", general: "" });
+    let hayErrores = false;
+    const nuevosErrores = { email: "", password: "", general: ""}
+    
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!validarFormulario()) return;
-
-    const ok = login(email, password);
-
-    if (ok) {
-      alert("Inicio de sesión exitoso.");
-
-      if (onLoginSuccess) {
-        onLoginSuccess();
+      if (!email.trim()) {
+        nuevosErrores.email = "El correo no puede estar vacío";
+        hayErrores = true;
+      } else if (!emailRegex.test(email)) {
+        nuevosErrores.email = "El formato del correo no es válido";
+        hayErrores = true;
       }
 
-      navigate("/"); // redirige al home
+      if (!password.trim()) {
+        nuevosErrores.password = "La contraseña no puede estar vacía";
+        hayErrores = true;
+      } else if (password.length < 6) {
+        nuevosErrores.password = "La contraseña debe tener al menos 6 caracteres";
+        hayErrores = true;
+      }
 
-    } else {
-      setError((prev) => ({
-        ...prev,
-        general: "Correo o contraseña incorrectos",
-      }));
-    }
-  };
+      if(hayErrores){
+        setError(nuevosErrores);
+        return
+      }
 
-  // 🔹 Recuperar contraseña
-  const handleRecuperar = () => {
-    const clave = recuperarClave(email);
-    if (clave) alert(`Tu contraseña es: ${clave}`);
-    else alert("No hay usuario registrado con ese correo.");
-  };
+      // 🔹 Intentar iniciar sesión
+    
+      try {
+        await login({ email, password});
 
-  return (
-    <div className="container my-5" style={{ maxWidth: "400px" }}>
-      <h2 className="text-center mb-4">Iniciar Sesión</h2>
-      <form onSubmit={handleLogin} noValidate className="p-4 border rounded bg-light shadow">
-        <div className="mb-3">
-          <label className="form-label" htmlFor="email">Correo</label>
-          <input
-            id="email"
-            type="email"
-            className={`form-control ${error.email ? "is-invalid" : ""}`}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          {error.email && (
-            <div className="text-danger small mt-1">{error.email}</div>
+        alert("Inicio de sesión exitoso.");
+
+        if (onLoginSuccess){
+          onLoginSuccess();
+        }
+
+        navigate("/");
+
+      } catch (err) {
+        const errorAxios = err as AxiosError;
+
+        if (errorAxios.response?.status === 401 || errorAxios.response?.status === 403) {
+          setError(prev => ({ ...prev, general: "Correo o contraseña incorrectos"}));
+        } else {
+          setError(prev => ({ ...prev, general: "Error en la conexión con el servidor"}));
+          console.error(err);
+        }
+      }
+    };
+    // 🔹 Recuperar contraseña
+    const handleRecuperar = () => {
+      alert("Esta funcionalidad requiere implementación de envío de correos")
+      // recuperarClave(email)
+    };
+  
+    return (
+      <div className="container my-5" style={{ maxWidth: "400px" }}>
+        <h2 className="text-center mb-4">Iniciar Sesión</h2>
+        <form onSubmit={handleLogin} noValidate className="p-4 border rounded bg-light shadow">
+          <div className="mb-3">
+            <label className="form-label" htmlFor="email">Correo</label>
+            <input
+              id="email"
+              type="email"
+              className={`form-control ${error.email ? "is-invalid" : ""}`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            {error.email && (
+              <div className="text-danger small mt-1">{error.email}</div>
+            )}
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label" htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              className={`form-control ${error.password ? "is-invalid" : ""}`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {error.password && (
+              <div className="text-danger small mt-1">{error.password}</div>
+            )}
+          </div>
+
+          {error.general && (
+            <div className="alert alert-danger">{error.general}</div>
           )}
-        </div>
 
-        <div className="mb-3">
-          <label className="form-label" htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            className={`form-control ${error.password ? "is-invalid" : ""}`}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error.password && (
-            <div className="text-danger small mt-1">{error.password}</div>
-          )}
-        </div>
+          <button className="btn btn-primary w-100" type="submit">Iniciar sesión</button>
 
-        {error.general && (
-          <div className="alert alert-danger">{error.general}</div>
-        )}
+          <button
+            type="button"
+            className="btn btn-link w-100 mt-2"
+            onClick={handleRecuperar}
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
 
-        <button className="btn btn-primary w-100">Iniciar sesión</button>
-
-        <button
-          type="button"
-          className="btn btn-link w-100 mt-2"
-          onClick={handleRecuperar}
-        >
-          ¿Olvidaste tu contraseña?
-        </button>
-
-        <Link to="/register" className="btn btn-link w-100 mt-2">
-          Crear cuenta
-        </Link>
-      </form>
-    </div>
-  );
+          <Link to="/register" className="btn btn-link w-100 mt-2">
+            Crear cuenta
+          </Link>
+        </form>
+      </div>
+    );
 };
 
 export default Login;
