@@ -1,28 +1,39 @@
-import { medicamento } from "../data/Medicamentos";
+import { getDestacados, type Producto } from "../scripts/products";
 import { Compra } from "../modal/Compra";
 import { AgregarCarrito } from "../modal/AgregarCarrito";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Home: React.FC = () => {
   const [productoSeleccionado, setProductoSeleccionado] = useState<string>("");
+  const [destacados, setDestacados] = useState<Producto[]>([]);
 
-  const abrirModalCompra = (nombre: string) => {
-    setProductoSeleccionado(nombre);
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getDestacados();
+        setDestacados(data.content);
+      } catch (error) {
+        console.error("Error cargando destacados", error);
+      }
+    }
+    load();
+  }, []);
+
+  const abrirModalCompra = (sku: string) => {
+    setProductoSeleccionado(sku);
     const modal = new (window as any).bootstrap.Modal(
       document.getElementById("confirmarCompra")
     );
     modal.show();
   };
 
-  const abrirModalAgregarCarrito = (nombre: string) => {
-    setProductoSeleccionado(nombre);
+  const abrirModalAgregarCarrito = (sku: string) => {
+    setProductoSeleccionado(sku);
     const modal = new (window as any).bootstrap.Modal(
       document.getElementById("agregarCarrito")
     );
     modal.show();
   };
-
-  const destacados = medicamento.filter((prod) => prod.destacado);
 
   return (
     <>
@@ -113,27 +124,35 @@ const Home: React.FC = () => {
             <div className="col-md-4 mb-4" key={prod.id}>
               <div className="card h-100 shadow-sm">
                 <img
-                  src={prod.imagen}
+                  src={prod.imagenUrl}
                   className="card-img-top img-medicamento"
                   alt={prod.nombre}
                   style={{ height: "200px", objectFit: "contain" }}
+                  onError={(e) => (e.currentTarget.src = "/placeholder.jpg")}
                 />
+
                 <div className="card-body">
                   <h5 className="card-title">{prod.nombre}</h5>
-                  <p className="card-text">{prod.descripcion}</p>
-                  <p className="card-text">
-                    <strong>Precio: ${prod.precio}</strong>
+                  {prod.pideReceta && (
+                    <span className="badge bg-warning text-dark mb-2">
+                      Requiere Receta
+                    </span>
+                  )}
+
+                  <p className="card-text text-muted small">{prod.descripcion}</p>
+                  <p className="card-text fs-5">
+                    <strong>${prod.precio}</strong>
                   </p>
                   <hr />
                   <button
                     className="btn btn-primary w-100 mb-2"
-                    onClick={() => abrirModalCompra(prod.nombre)}
+                    onClick={() => abrirModalCompra(prod.sku)}
                   >
                     Comprar
                   </button>
                   <button
                     className="btn btn-outline-primary w-100"
-                    onClick={() => abrirModalAgregarCarrito(prod.nombre)}
+                    onClick={() => abrirModalAgregarCarrito(prod.sku)}
                   >
                     Añadir al carrito
                   </button>
@@ -143,8 +162,8 @@ const Home: React.FC = () => {
           ))}
         </div>
 
-        <Compra productoSeleccionado={productoSeleccionado} />
-        <AgregarCarrito productoSeleccionado={productoSeleccionado} />
+        <Compra productoSku={productoSeleccionado} />
+        <AgregarCarrito productoSku={productoSeleccionado} />
       </div>
     </>
   );

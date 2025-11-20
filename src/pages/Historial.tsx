@@ -1,77 +1,82 @@
 import { useEffect, useState } from "react";
-
-    interface Compra {
-        producto: string;
-        cantidad: number;
-        nombre: string;
-        direccion: string;
-        telefono: string;
-        metodoPago: string;
-        fecha: string;
-    }
+import { getHistorial, type Pedido } from "../scripts/pedidos";
 
 const Historial: React.FC = () => {
 
-    const [historial, setHistorial] = useState<Compra[]>([]);
+    const [historial, setHistorial] = useState<Pedido[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
     useEffect(() => {
-        const data = JSON.parse(localStorage.getItem("historialCompras") || "[]");
-        setHistorial(data);
+        const cargarDatos = async () => {
+            try {
+                const data = await getHistorial();
+                setHistorial(data);
+            } catch (error) {
+                console.error("Error cargando historial", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        cargarDatos();
     }, []);
 
-    const eliminarCompra = (index: number) => {
-        const nuevoHistorial = historial.filter((_, i) => i !== index);
-        setHistorial(nuevoHistorial);
-        localStorage.setItem("historialCompras", JSON.stringify(nuevoHistorial));
+    const toggleAccordion = (index:number) => {
+        if (activeIndex === index){
+            setActiveIndex(null);
+        } else {
+            setActiveIndex(index);
+        }
     };
 
-    const vaciarHistorial = () => {
-        localStorage.removeItem("historialCompras");
-        setHistorial([]);
-    };
+    if (loading) return <div className="text-center mt-5">Cargando historial...</div>;
 
     return (
         <div className="container mt-5">
             <h2 className="text-center mb-4">📜 Historial de Compras</h2>
             <hr />
             {historial.length === 0 ? (
-                <p className="text-center">No hay compras realizadas.</p>
+                <p className="text-center">No has realizado compras aún.</p>
             ) : (
-                <>
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Nombre</th>
-                                <th>Dirección</th>
-                                <th>Teléfono</th>
-                                <th>Método de Pago</th>
-                                <th>Fecha</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {historial.map((compra, index) => (
-                                <tr key={index}>
-                                    <td>{compra.producto}</td>
-                                    <td>{compra.cantidad}</td>
-                                    <td>{compra.nombre}</td>
-                                    <td>{compra.direccion}</td>
-                                    <td>{compra.telefono}</td>
-                                    <td>{compra.metodoPago}</td>
-                                    <td>{compra.fecha}</td>
-                                    <td>
-                                        <button className="btn btn-danger btn-sm" onClick={() => eliminarCompra(index)}>Eliminar</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <div className="text-center">
-                        <button className="btn btn-danger" onClick={vaciarHistorial}>Vaciar Historial</button>
-                    </div>
-                </>
+                <div className="accordion" id="accordionHistorial">
+                    {historial.map((pedido, index) => {
+                        const isOpen = activeIndex === index;
+
+                        return (
+                            <div className="accordion-item" key={pedido.id}>
+                                <h2 className="accordion-header" id={`heading${index}`}>
+                                    <button 
+                                        className={`accordion-button ${isOpen ? "" : "collapsed"}`} 
+                                        type="button" 
+                                        onClick={() => toggleAccordion(index)}
+                                        aria-expanded={isOpen}
+                                    >
+                                        <strong>Pedido #{pedido.id}</strong> 
+                                        <span className="ms-3 badge bg-success">{pedido.estado}</span>
+                                        <span className="ms-auto me-3">Total: ${pedido.montoTotal}</span>
+                                    </button>
+                                </h2>
+                                <div 
+                                    id={`collapse${index}`} 
+                                    className={`accordion-collapse collapse ${isOpen ? "show" : ""}`} 
+                                    aria-labelledby={`heading${index}`} 
+                                >
+                                    <div className="accordion-body">
+                                        <h6>Detalle de Productos:</h6>
+                                        <ul>
+                                            {pedido.items.map((item, i) => (
+                                                <li key={i}>
+                                                    {item.cantidad}x <strong>{item.sku}</strong> - (Unitario: ${item.precioUnitario})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <p className="text-muted small">ID Seguimiento: {pedido.uuid}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             )}
         </div>
     );

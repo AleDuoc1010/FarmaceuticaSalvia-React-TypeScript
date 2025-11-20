@@ -1,60 +1,94 @@
 import { useEffect, useState } from "react";
-
-interface Carrito{
-    producto: string;
-    cantidad: number;
-}
+import { useNavigate } from "react-router-dom";
+import { getCarrito, eliminarItemCarrito, pagarCarrito, type Pedido } from "../scripts/pedidos";
 
 const Carrito: React.FC = () => {
 
-    const [carrito, setCarrito] = useState<Carrito[]>([]);
+    const [carrito, setCarrito] = useState<Pedido | null>(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    const cargarDatos = async () => {
+        setLoading(true);
+        const data = await getCarrito();
+        setCarrito(data);
+        setLoading(false);
+    };
 
     useEffect(() => {
-        const data = JSON.parse(localStorage.getItem("carritoCompras") || "[]");
-        setCarrito(data);
+        cargarDatos();
     }, []);
 
-    const eliminarCarrito = (index: number) => {
-        const nuevoCarrito = carrito.filter((_, i) => i !== index);
-        setCarrito(nuevoCarrito);
-        localStorage.setItem("carritoCompras", JSON.stringify(nuevoCarrito));
+    const handleEliminar = async(sku:string) => {
+        if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+        try {
+            await eliminarItemCarrito(sku);
+            cargarDatos();
+        } catch (error) {
+            alert("Error al eliminar item");
+        }
     };
 
-    const vaciarCarrito = () => {
-        localStorage.removeItem("carritoCompras");
-        setCarrito([]);
+    const handlePagar = async () => {
+        if (!confirm("¿Confirmar pago?")) return;
+        try {
+            await pagarCarrito();
+            alert("Pago realizado con éxito");
+            setCarrito(null);
+            navigate("/historial");
+        } catch (error) {
+            alert("Error al procesar el pago.");
+        }
     };
+
+    if (loading) return <div className="text-center mt-5">Cargando carrito...</div>;
 
     return (
         <div className="container mt-5">
             <h2 className="text-center mb-4">🛒 Carrito de Compras</h2>
             <hr />
-            {carrito.length === 0 ? (
-                <p className="text-center">El carrito está vacío.</p>
+            {!carrito || carrito.items.length === 0 ? (
+                <div className="text-center">
+                    <p>El carrito está vacío.</p>
+                    <button className="btn btn-primary" onClick={() => navigate("/productos")}>Ir a Comprar</button>
+                </div>
             ) : (
                 <>
-                    <table className="table table-striped">
+                    <table className="table table-striped align-middle">
                         <thead>
                             <tr>
-                                <th>Producto</th>
+                                <th>Producto (SKU)</th>
+                                <th>Precio Unit.</th>
                                 <th>Cantidad</th>
+                                <th>Subtotal</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {carrito.map((item, index) => (
-                                <tr key={index}>
-                                    <td>{item.producto}</td>
+                            {carrito.items.map((item) => (
+                                <tr key={item.id}>
+                                    <td>{item.sku}</td>
+                                    <td>${item.precioUnitario}</td>
                                     <td>{item.cantidad}</td>
+                                    <td>${item.subtotal}</td>
                                     <td>
-                                        <button className="btn btn-danger" onClick={() => eliminarCarrito(index)}>Eliminar</button>
+                                        <button 
+                                            className="btn btn-danger btn-sm" 
+                                            onClick={() => handleEliminar(item.sku)}
+                                        >
+                                            Eliminar
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                    <div className="text-center">
-                        <button className="btn btn-danger" onClick={vaciarCarrito}>Vaciar Carrito</button>
+
+                    <div className="d-flex justify-content-end align-items-center gap-3 mt-4">
+                        <h4>Total: <strong>${carrito.montoTotal}</strong></h4>
+                        <button className="btn btn-success btn-lg" onClick={handlePagar}>
+                            Pagar Carrito
+                        </button>
                     </div>
                 </>
             )}
