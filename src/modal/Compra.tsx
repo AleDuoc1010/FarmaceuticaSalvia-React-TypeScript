@@ -1,4 +1,4 @@
-import React,{ useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { productoApi } from "../api/axiosConfig";
 import { type Producto } from "../scripts/products";
 import { comprarDirecto } from "../scripts/pedidos";
@@ -18,6 +18,8 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
   const [telefono, setTelefono] = useState("");
   const [metodoPago, setMetodoPago] = useState("");
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [error, setError] = useState({
     nombre: "",
     direccion: "",
@@ -27,6 +29,32 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
   });
 
   useEffect(() => {
+    const modalElement = document.getElementById("confirmarCompra");
+
+    const limpiarFormulario = () => {
+      setCantidad(1);
+      setNombre("");
+      setDireccion("");
+      setTelefono("");
+      setMetodoPago("");
+      setArchivoReceta(null);
+      setError({ nombre: "", direccion: "", telefono: "", metodoPago: "", cantidad: "" });
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      setLoading(false);
+    };
+
+    modalElement?.addEventListener('hidden.bs.modal', limpiarFormulario);
+
+    return () => {
+      modalElement?.removeEventListener('hidden.bs.modal', limpiarFormulario);
+    };
+  }, []);
+
+  useEffect(() => {
     if (productoSku) {
       productoApi.get<Producto>(`/productos/${productoSku}`)
         .then(res => setProductoInfo(res.data))
@@ -34,20 +62,44 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
     }
   }, [productoSku]);
 
+  const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]*$/.test(val)) {
+      setNombre(val);
+    }
+  };
+
+  const handleTelefonoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val) && val.length <= 9) {
+      setTelefono(val);
+    }
+  };
+
+  const handleCantidadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value);
+    if (!isNaN(val) && val > 0) {
+        setCantidad(val);
+    } else if (e.target.value === "") {
+        setCantidad(1);
+    }
+  };
+
   const validarFormulario = () => {
     const nuevoError = {nombre: "", direccion: "", telefono: "", metodoPago: "", cantidad: ""};
     let esValido = true;
 
-    if(!nombre.trim()) {nuevoError.nombre = "Requerido" ; esValido = false;}
-    if(!direccion.trim()) {nuevoError.direccion = "Requerido" ; esValido = false;}
-    if(!telefono.trim()) {nuevoError.telefono = "Requerido" ; esValido = false;}
-    if(!metodoPago.trim()) {nuevoError.metodoPago = "Requerido" ; esValido = false;}
-    if(!cantidad) {nuevoError.cantidad = "Requerido" ; esValido = false;}
+    if(!nombre.trim()) { nuevoError.nombre = "El nombre es obligatorio"; esValido = false; }
+    else if (nombre.length < 3) { nuevoError.nombre = "Mínimo 3 caracteres"; esValido = false; }
 
-    if(cantidad < 1){
-      nuevoError.cantidad = "Mínimo 1";
-      esValido = false;
-    }
+    if(!direccion.trim()) { nuevoError.direccion = "La dirección es obligatoria"; esValido = false; }
+    
+    if(!telefono.trim()) { nuevoError.telefono = "El teléfono es obligatorio"; esValido = false; }
+    else if (telefono.length < 9) { nuevoError.telefono = "Debe tener 9 dígitos"; esValido = false; }
+
+    if(!metodoPago.trim()) { nuevoError.metodoPago = "El método de pago es obligatorio"; esValido = false; }
+    
+    if(cantidad < 1){ nuevoError.cantidad = "Mínimo 1"; esValido = false; }
 
     setError(nuevoError);
     return esValido;
@@ -68,14 +120,15 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
       const modal = (window as any).bootstrap.Modal.getInstance(document.getElementById("confirmarCompra"));
       modal?.hide();
 
-      setCantidad(1);
-      setNombre(""); setDireccion(""); setTelefono(""); setMetodoPago(""); setArchivoReceta(null);
     } catch (error: any) {
-      console.error(error);
-      if (error.response?.status === 400) alert("Error: " + error.response.data.message);
-      else if (error.response?.status === 403) alert("Debes iniciar sesión.");
-      else alert("Error al procesar la compra.");
-    } finally {
+        console.error(error);
+          if (error.response && error.response.data && error.response.data.message){
+              alert("Error: " + error.response.data.message);
+          } else if (error.response?.status === 403){
+              alert("Debes iniciar sesión para comprar.");
+          } else {
+              alert("Ocurrió un error al comprar.")
+          }
       setLoading(false);
     }
   };
@@ -113,17 +166,18 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
                     type="file"
                     className="form-control"
                     accept="image/*"
+                    ref={fileInputRef}
                     onChange={(e) => setArchivoReceta(e.target.files ? e.target.files[0] : null)}
                   />
                 </div>
               )}
 
               <div className="row g-2">
-                <div className="col-12">
-                  <label className="form-label">Nombre Completo</label>
-                  <input type="text" className={`form-control ${error.nombre ? "is-invalid" : ""}`} 
-                          value={nombre} onChange={e => setNombre(e.target.value)} />
-                    {error.nombre && <small className="text-danger">{error.nombre}</small>}
+                  <div className="col-12">
+                    <label className="form-label">Nombre Completo</label>
+                    <input type="text" className={`form-control ${error.nombre ? "is-invalid" : ""}`} 
+                            value={nombre} onChange={handleNombreChange} placeholder="Ej: Juan Pérez" />
+                      {error.nombre && <small className="text-danger">{error.nombre}</small>}
                   </div>
                   
                   <div className="mb-3">
@@ -145,7 +199,7 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
                       type="tel"
                       className={`form-control ${error.telefono ? "is-invalid" : ""}`}
                       value={telefono}
-                      onChange={(e) => setTelefono(e.target.value)}
+                      onChange={handleTelefonoChange}
                       maxLength={9}
                       placeholder="Ej: 912345678"
                     />
@@ -173,7 +227,7 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
                   
                   <div className="mb-3">
                      <label className="form-label">Cantidad</label>
-                     <input type="number" className="form-control" min="1" value={cantidad} onChange={e => setCantidad(parseInt(e.target.value))} />
+                     <input type="number" className="form-control" min="1" value={cantidad} onChange={handleCantidadChange} />
                   </div>
               </div>
               <div className="mt-4 d-grid">

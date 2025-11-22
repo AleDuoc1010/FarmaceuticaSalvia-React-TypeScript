@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getHistorial, type Pedido } from "../scripts/pedidos";
+import { getHistorial, borrarHistorial, eliminarPedidoHistorial, type Pedido } from "../scripts/pedidos";
 
 const Historial: React.FC = () => {
 
@@ -7,19 +7,41 @@ const Historial: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
+    const cargarDatos = async () => {
+        try {
+            const data = await getHistorial();
+            setHistorial(data);
+        } catch (error) {
+            console.error("Error cargando historial", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const cargarDatos = async () => {
-            try {
-                const data = await getHistorial();
-                setHistorial(data);
-            } catch (error) {
-                console.error("Error cargando historial", error);
-            } finally {
-                setLoading(false);
-            }
-        };
         cargarDatos();
     }, []);
+
+    const handleEliminarPedido = async (id: number) => {
+        if (!confirm("¿Estás seguro de eliminar este registro del historial?")) return;
+        try {
+            await eliminarPedidoHistorial(id);
+            setActiveIndex(null);
+            cargarDatos();
+        } catch (error) {
+            alert("Error al eliminar el registro.");
+        }
+    };
+
+    const handleVaciarHistorial = async () => {
+        if (!confirm("¿Estás seguro de borrar TODO tu historial de compras?")) return;
+        try {
+            await borrarHistorial();
+            cargarDatos();
+        } catch (error) {
+            alert("Error al vaciar el historial.");
+        }
+    };
 
     const toggleAccordion = (index:number) => {
         if (activeIndex === index){
@@ -33,10 +55,31 @@ const Historial: React.FC = () => {
 
     return (
         <div className="container mt-5">
-            <h2 className="text-center mb-4">📜 Historial de Compras</h2>
+            <div 
+                className={`mb-4 ${
+                    historial.length === 0 
+                        ? "text-center"
+                        : "d-flex justify-content-between align-items-center"
+                }`}
+            >
+                <h2 className="mb-0">📜 Historial de Compras</h2>
+                
+                {historial.length > 0 && (
+                    <button 
+                        className="btn btn-outline-danger btn-sm" 
+                        onClick={handleVaciarHistorial}
+                    >
+                        Vaciar Historial
+                    </button>
+                )}
+            </div>
+            
             <hr />
+
             {historial.length === 0 ? (
-                <p className="text-center">No has realizado compras aún.</p>
+                <div className="alert alert-info text-center">
+                    No has realizado compras aún.
+                </div>
             ) : (
                 <div className="accordion" id="accordionHistorial">
                     {historial.map((pedido, index) => {
@@ -51,9 +94,13 @@ const Historial: React.FC = () => {
                                         onClick={() => toggleAccordion(index)}
                                         aria-expanded={isOpen}
                                     >
-                                        <strong>Pedido #{pedido.id}</strong> 
-                                        <span className="ms-3 badge bg-success">{pedido.estado}</span>
-                                        <span className="ms-auto me-3">Total: ${pedido.montoTotal}</span>
+                                        <div className="d-flex w-100 justify-content-between align-items-center me-3">
+                                            <span><strong>Pedido #{pedido.id}</strong></span>
+                                            <div>
+                                                <span className="badge bg-success me-3">{pedido.estado}</span>
+                                                <span className="fw-bold text-primary">${pedido.montoTotal}</span>
+                                            </div>
+                                        </div>
                                     </button>
                                 </h2>
                                 <div 
@@ -62,15 +109,28 @@ const Historial: React.FC = () => {
                                     aria-labelledby={`heading${index}`} 
                                 >
                                     <div className="accordion-body">
-                                        <h6>Detalle de Productos:</h6>
-                                        <ul>
+                                        <h6 className="border-bottom pb-2 mb-3">Detalle de Productos:</h6>
+                                        <ul className="list-group mb-3">
                                             {pedido.items.map((item, i) => (
-                                                <li key={i}>
-                                                    {item.cantidad}x <strong>{item.sku}</strong> - (Unitario: ${item.precioUnitario})
+                                                <li key={i} className="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <span className="fw-bold">{item.cantidad}x</span> {item.sku}
+                                                    </div>
+                                                    <span className="text-muted">${item.precioUnitario} c/u</span>
                                                 </li>
                                             ))}
                                         </ul>
-                                        <p className="text-muted small">ID Seguimiento: {pedido.uuid}</p>
+                                        
+                                        <div className="d-flex justify-content-between align-items-end mt-3">
+                                            <small className="text-muted">UUID: {pedido.uuid}</small>
+                                            
+                                            <button 
+                                                className="btn btn-sm btn-danger"
+                                                onClick={() => handleEliminarPedido(pedido.id)}
+                                            >
+                                                Eliminar Registro
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

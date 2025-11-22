@@ -50,3 +50,20 @@ export const comprarDirecto = async (sku: string, cantidad: number): Promise<Ped
     const response = await pedidosApi.post<Pedido>("/pedidos/comprar", {sku, cantidad});
     return response.data;
 };
+
+export const actualizarCantidad = async (sku: string, cantidad: number): Promise<Pedido> => {
+    const response = await pedidosApi.put<Pedido>(`/pedidos/carrito/${sku}?cantidad=${cantidad}`);
+    return response.data;
+};
+
+export const vaciarCarrito = async (): Promise<void> => {
+    await pedidosApi.delete("/pedidos/carrito");
+};
+
+export const eliminarPedidoHistorial = async (pedidoId: number): Promise<void> => {
+    await pedidosApi.delete(`/pedidos/historial/${pedidoId}`);
+};
+
+export const borrarHistorial = async (): Promise<void> => {
+    await pedidosApi.delete("/pedidos/historial");
+};

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCarrito, eliminarItemCarrito, pagarCarrito, type Pedido } from "../scripts/pedidos";
+import { getCarrito, eliminarItemCarrito, pagarCarrito, actualizarCantidad, vaciarCarrito,type Pedido } from "../scripts/pedidos";
 
 const Carrito: React.FC = () => {
 
@@ -41,6 +41,26 @@ const Carrito: React.FC = () => {
         }
     };
 
+    const handleCambiarCantidad = async(sku: string, cantidadActual: number, delta: number) => {
+        const nuevaCantidad = cantidadActual + delta;
+        if (nuevaCantidad < 1) return;
+
+        try{
+            await actualizarCantidad(sku, nuevaCantidad);
+            cargarDatos();
+        } catch (error: any){
+            if (error.response?.data?.message){
+                alert(error.response.data.message);
+            }
+        }
+    };
+
+    const handleVaciar = async () => {
+        if(!confirm("¿Vaciar todo el carrito?")) return;
+        await vaciarCarrito();
+        cargarDatos();
+    };
+
     if (loading) return <div className="text-center mt-5">Cargando carrito...</div>;
 
     return (
@@ -69,7 +89,23 @@ const Carrito: React.FC = () => {
                                 <tr key={item.id}>
                                     <td>{item.sku}</td>
                                     <td>${item.precioUnitario}</td>
-                                    <td>{item.cantidad}</td>
+                                    <td style={{ minWidth: "120px" }}>
+                                        <div className="d-flex align-items-center justify-content-center gap-2">
+                                            <button 
+                                                className="btn btn-sm btn-outline-secondary fw-bold"
+                                                style={{ width: "30px" }}
+                                                onClick={() => handleCambiarCantidad(item.sku, item.cantidad, -1)}
+                                            >-</button>
+
+                                            <span className="fw-bold" style={{ minWidth: "20px", textAlign: "center" }}>{item.cantidad}</span>
+
+                                            <button 
+                                                className="btn btn-sm btn-outline-secondary"
+                                                style={{ width: "30px" }}
+                                                onClick={() => handleCambiarCantidad(item.sku, item.cantidad, 1)}
+                                            >+</button>
+                                        </div>
+                                    </td>
                                     <td>${item.subtotal}</td>
                                     <td>
                                         <button 
@@ -88,6 +124,10 @@ const Carrito: React.FC = () => {
                         <h4>Total: <strong>${carrito.montoTotal}</strong></h4>
                         <button className="btn btn-success btn-lg" onClick={handlePagar}>
                             Pagar Carrito
+                        </button>
+
+                        <button className="btn btn-outline-danger" onClick={handleVaciar}>
+                            Vaciar Carrito
                         </button>
                     </div>
                 </>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { productoApi } from "../api/axiosConfig";
 import { type Producto } from "../scripts/products";
 import { agregarAlCarrito } from "../scripts/pedidos";
@@ -13,6 +13,26 @@ export const AgregarCarrito: React.FC<Props> = ({ productoSku }) => {
     const [productoInfo, setProductoInfo] = useState<Producto |null>(null);
     const [archivoReceta, setArchivoReceta] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const modalElement = document.getElementById("agregarCarrito");
+
+        const limpiarFormulario = () => {
+            setCantidad(1);
+            setArchivoReceta(null);
+            
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+
+            setLoading(false);
+        };
+
+        modalElement?.addEventListener('hidden.bs.modal', limpiarFormulario);
+        return () => modalElement?.removeEventListener('hidden.bs.modal', limpiarFormulario);
+    }, []);
 
     useEffect(() => {
         if (productoSku) {
@@ -47,20 +67,19 @@ export const AgregarCarrito: React.FC<Props> = ({ productoSku }) => {
             const modal = (window as any).bootstrap.Modal.getInstance(modalEL);
             modal?.hide();
 
-            setCantidad(1);
-            setArchivoReceta(null);
         } catch (error: any) {
             console.error(error);
-            if (error.response?.status === 400){
+            if (error.response && error.response.data && error.response.data.message){
                 alert("Error: " + error.response.data.message);
             } else if (error.response?.status === 403){
                 alert("Debes iniciar sesión para comprar.");
             } else {
                 alert("Ocurrió un error al agregar al carrito.")
             }
-        } finally {
             setLoading(false);
         }
+            
+
     };
 
     const requiereReceta = productoInfo?.pideReceta;
@@ -110,6 +129,7 @@ export const AgregarCarrito: React.FC<Props> = ({ productoSku }) => {
                                             type="file"
                                             className="form-control"
                                             accept="image/*"
+                                            ref={fileInputRef}
                                             onChange={(e) => setArchivoReceta(e.target.files ? e.target.files[0] : null)}
                                         />
                                     </div>

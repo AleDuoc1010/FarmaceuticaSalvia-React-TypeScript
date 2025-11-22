@@ -21,6 +21,7 @@ const Home: React.FC = () => {
 
   const abrirModalCompra = (sku: string) => {
     setProductoSeleccionado(sku);
+
     const modal = new (window as any).bootstrap.Modal(
       document.getElementById("confirmarCompra")
     );
@@ -29,6 +30,7 @@ const Home: React.FC = () => {
 
   const abrirModalAgregarCarrito = (sku: string) => {
     setProductoSeleccionado(sku);
+
     const modal = new (window as any).bootstrap.Modal(
       document.getElementById("agregarCarrito")
     );
@@ -37,7 +39,6 @@ const Home: React.FC = () => {
 
   return (
     <>
-      {/* Carrusel funcional con Bootstrap */}
       <div
         id="carouselExampleIndicators"
         className="carousel slide"
@@ -94,7 +95,6 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Botones de navegación */}
         <button
           className="carousel-control-prev"
           type="button"
@@ -115,7 +115,6 @@ const Home: React.FC = () => {
         </button>
       </div>
 
-      {/* Sección de productos destacados */}
       <div className="container mt-5">
         <h2 className="text-center mb-4">Productos Destacados</h2>
         <hr />

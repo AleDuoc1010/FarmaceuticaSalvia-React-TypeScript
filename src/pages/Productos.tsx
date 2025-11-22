@@ -35,6 +35,7 @@ const Productos: React.FC = () => {
 
     const abrirModalAgregarCarrito = (sku: string) => {
         setProductoSeleccionado(sku);
+
         const modal = new (window as any).bootstrap.Modal(
             document.getElementById("agregarCarrito")
         );

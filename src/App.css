@@ -318,3 +318,31 @@ form button:hover {
   line-height: 1.7;
 }
 
+
+@media (max-width: 991px) {
+  
+
+  .navbar-collapse {
+    transition: max-height 0.35s ease-in-out;
+    overflow: hidden;
+  }
+
+
+  .navbar-collapse.collapse:not(.show) {
+    display: block !important; 
+    max-height: 0;             
+    padding-top: 0;            
+    padding-bottom: 0;
+    border: none;
+    opacity: 0;                
+    transition: all 0.35s ease-in-out;
+  }
+
+
+  .navbar-collapse.collapse.show {
+    display: block !important;
+    max-height: 500px;
+    opacity: 1;
+    transition: all 0.35s ease-in-out;
+  }
+}
