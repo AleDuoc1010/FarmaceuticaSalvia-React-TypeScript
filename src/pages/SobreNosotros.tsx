@@ -1,5 +1,5 @@
 import React from "react";
-import videoSobreNosotros from "../assets/fondo_productos.mp4"; // Asegúrate que este archivo exista en /src/assets/
+import videoSobreNosotros from "../assets/fondo_productos.mp4";
 
 const SobreNosotros: React.FC = () => {
   return (

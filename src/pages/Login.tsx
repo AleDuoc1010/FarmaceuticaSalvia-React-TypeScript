@@ -13,7 +13,7 @@ const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
   const [error, setError] = useState({ email: "", password: "", general: "" });
   const navigate = useNavigate();
 
-  // 🔹 Validar formulario antes de intentar iniciar sesión
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError({ email: "", password: "", general: "" });
@@ -42,8 +42,6 @@ const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
         setError(nuevosErrores);
         return
       }
-
-      // 🔹 Intentar iniciar sesión
     
       try {
         await login({ email, password});
@@ -66,11 +64,6 @@ const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
           console.error(err);
         }
       }
-    };
-    // 🔹 Recuperar contraseña
-    const handleRecuperar = () => {
-      alert("Esta funcionalidad requiere implementación de envío de correos")
-      // recuperarClave(email)
     };
   
     return (
@@ -110,14 +103,6 @@ const Login: React.FC<LoginProps> = ({onLoginSuccess}) => {
           )}
 
           <button className="btn btn-primary w-100" type="submit">Iniciar sesión</button>
-
-          <button
-            type="button"
-            className="btn btn-link w-100 mt-2"
-            onClick={handleRecuperar}
-          >
-            ¿Olvidaste tu contraseña?
-          </button>
 
           <Link to="/register" className="btn btn-link w-100 mt-2">
             Crear cuenta

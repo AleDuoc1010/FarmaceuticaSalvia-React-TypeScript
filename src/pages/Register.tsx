@@ -11,11 +11,9 @@ const Register: React.FC = () => {
   const [error, setError] = useState({ nombre: "", email: "", phone: "", password: "", general: ""});
   const navigate = useNavigate();
 
-// --- HANDLERS PARA SANITIZAR INPUTS EN TIEMPO REAL ---
-
   const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    // Solo permite letras (incluyendo tildes y ñ) y espacios
+
     if (/^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]*$/.test(val)) {
       setNombre(val);
     }
@@ -23,26 +21,20 @@ const Register: React.FC = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    // Solo permite números y limita a 9 caracteres
+
     if (/^\d*$/.test(val) && val.length <= 9) {
       setPhone(val);
     }
   };
 
-  // --- MANEJO DEL ENVÍO ---
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 1. Limpiar errores previos
     setError({ nombre: "", email: "", phone: "", password: "", general: "" });
     
     let hayErrores = false;
     const nuevosErrores = { nombre: "", email: "", phone: "", password: "", general: "" };
 
-    // 2. Validaciones
-
-    // Validar Nombre
     if (!nombre.trim()) {
       nuevosErrores.nombre = "El nombre no puede estar vacío";
       hayErrores = true;
@@ -51,7 +43,6 @@ const Register: React.FC = () => {
       hayErrores = true;
     }
 
-    // Validar Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
       nuevosErrores.email = "El correo no puede estar vacío";
@@ -61,7 +52,6 @@ const Register: React.FC = () => {
       hayErrores = true;
     }
 
-    // Validar Teléfono
     if (!phone.trim()) {
       nuevosErrores.phone = "El teléfono no puede estar vacío";
       hayErrores = true;
@@ -70,7 +60,6 @@ const Register: React.FC = () => {
       hayErrores = true;
     }
 
-    // Validar Contraseña
     if (!password.trim()) {
       nuevosErrores.password = "La contraseña no puede estar vacía";
       hayErrores = true;
@@ -79,13 +68,11 @@ const Register: React.FC = () => {
       hayErrores = true;
     }
 
-    // 3. Si hay errores, mostramos y paramos
     if (hayErrores) {
       setError(nuevosErrores);
       return;
     }
 
-    // 4. Enviar al Backend
     try {
       const data: RegisterData = { nombre, email, phone, password };
       await register(data);
@@ -96,8 +83,6 @@ const Register: React.FC = () => {
     } catch (err) {
       const errorAxios = err as AxiosError;
 
-      // Usamos prev para mantener posibles errores de campos si quisiéramos, 
-      // aunque aquí basta con actualizar general.
       if (errorAxios.response?.status === 409) {
         setError(prev => ({ ...prev, general: "El correo electrónico ya está registrado." }));
       } else {

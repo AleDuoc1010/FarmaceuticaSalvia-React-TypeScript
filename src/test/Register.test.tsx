@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 import Register from "../pages/Register";
@@ -8,7 +8,7 @@ import { register } from "../scripts/forms";
 
 
 vi.mock("../scripts/forms", () => ({
-  register: vi.fn(() => true),
+  register: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 describe("Componente registro", () => {
@@ -85,13 +85,15 @@ describe("Componente registro", () => {
         });
         fireEvent.click(screen.getByRole("button", { name: /Registrarse/i }));
 
-        expect(register).toHaveBeenCalledWith({
-            nombre: "Stefania",
-            email: "stefania@gmail.com",
-            phone: "987654321",
-            password: "password123",
-        });
+        await waitFor(() => {
+            expect(register).toHaveBeenCalledWith({
+                nombre: "Stefania",
+                email: "stefania@gmail.com",
+                phone: "987654321",
+                password: "password123",
+            });
 
-        expect(window.alert).toHaveBeenCalledWith("Registro exitoso");
+            expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("Registro exitoso. Ahora puedes iniciar sesión"));
+        });
   });
 });

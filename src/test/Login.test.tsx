@@ -1,13 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 import Login from "../pages/Login";
+import { login } from "../scripts/forms";
 
 
 vi.mock("../scripts/forms", () => ({
-  login: vi.fn(() => true),           // el posible login funcionando
-  recuperarClave: vi.fn(() => null),
+  login: vi.fn().mockResolvedValue({ token: "fake-token", usuario: {} }), 
+  recuperarClave: vi.fn(),
 }));
 
 describe("Componente Login", () => {
@@ -73,8 +74,13 @@ describe("Componente Login", () => {
             target: { value: "password123" },
         });
         fireEvent.click(screen.getByRole("button", { name: /Iniciar Sesión/i }));
-        expect(onLoginSuccess).toHaveBeenCalledWith();
 
-        expect(window.alert).toHaveBeenCalledWith("Inicio de sesión exitoso.");
+        await waitFor(() => {
+                expect(login).toHaveBeenCalledWith({ email: "ale@gmail.com", password: "password123" });
+        
+                expect(onLoginSuccess).toHaveBeenCalledWith();
+
+                expect(window.alert).toHaveBeenCalledWith("Inicio de sesión exitoso.");
+        });
   });
 });
