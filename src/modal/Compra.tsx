@@ -76,15 +76,6 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
     }
   };
 
-  const handleCantidadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value);
-    if (!isNaN(val) && val > 0) {
-        setCantidad(val);
-    } else if (e.target.value === "") {
-        setCantidad(1);
-    }
-  };
-
   const validarFormulario = () => {
     const nuevoError = {nombre: "", direccion: "", telefono: "", metodoPago: "", cantidad: ""};
     let esValido = true;
@@ -135,6 +126,8 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
 
   const requiereReceta = productoInfo?.pideReceta;
   const puedeComprar = !requiereReceta || (requiereReceta && archivoReceta);
+  const incrementar = () => setCantidad(prev => prev + 1);
+  const decrementar = () => setCantidad(prev => (prev > 1 ? prev - 1 : 1));
 
   return (
     <div
@@ -161,8 +154,9 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
 
               {requiereReceta && (
                 <div className="alert alert-danger mb-3">
-                  <label className="form-label fw-bold"> Sube tu Receta Médica</label>
-                  <input 
+                  <label htmlFor="inputReceta" className="form-label fw-bold"> Sube tu Receta Médica</label>
+                  <input
+                    id="inputReceta"
                     type="file"
                     className="form-control"
                     accept="image/*"
@@ -174,15 +168,16 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
 
               <div className="row g-2">
                   <div className="col-12">
-                    <label className="form-label">Nombre Completo</label>
-                    <input type="text" className={`form-control ${error.nombre ? "is-invalid" : ""}`} 
+                    <label htmlFor="inputNombre" className="form-label">Nombre Completo</label>
+                    <input id="inputNombre" type="text" className={`form-control ${error.nombre ? "is-invalid" : ""}`} 
                             value={nombre} onChange={handleNombreChange} placeholder="Ej: Juan Pérez" />
                       {error.nombre && <small className="text-danger">{error.nombre}</small>}
                   </div>
                   
                   <div className="mb-3">
-                    <label className="form-label">Dirección de Entrega</label>
+                    <label htmlFor="inputDireccion" className="form-label">Dirección de Entrega</label>
                     <input
+                      id="inputDireccion"
                       type="text"
                       className={`form-control ${error.direccion ? "is-invalid" : ""}`}
                       value={direccion}
@@ -194,8 +189,9 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Teléfono de contacto</label>
+                    <label htmlFor="inputTelefono" className="form-label">Teléfono de contacto</label>
                     <input
+                      id="inputTelefono"
                       type="tel"
                       className={`form-control ${error.telefono ? "is-invalid" : ""}`}
                       value={telefono}
@@ -209,8 +205,9 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label">Método de Pago</label>
+                    <label htmlFor="selectPago" className="form-label">Método de Pago</label>
                     <select
+                      id="selectPago"
                       className={`form-select ${error.metodoPago ? "is-invalid" : ""}`}
                       value={metodoPago}
                       onChange={(e) => setMetodoPago(e.target.value)}
@@ -226,8 +223,34 @@ export const Compra: React.FC<CompraProps> = ({ productoSku }) => {
                   </div>
                   
                   <div className="mb-3">
-                     <label className="form-label">Cantidad</label>
-                     <input type="number" className="form-control" min="1" value={cantidad} onChange={handleCantidadChange} />
+                    <label className="form-label">Cantidad</label>
+
+                    <div className="input-group">
+
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={decrementar}
+                      >-</button>
+
+                      <input 
+                        type="number"
+                        className="form-control text-center"
+                        min="1"
+                        value={cantidad}
+                        onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            if(!isNaN(val) && val > 0) setCantidad(val);
+                            else if(e.target.value === "") setCantidad(1);
+                            }}
+                        />
+
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary"
+                          onClick={incrementar}
+                        >+</button>
+                      </div>
                   </div>
               </div>
               <div className="mt-4 d-grid">

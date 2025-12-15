@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getAllUsuarios, eliminarUsuario, type UsuarioAdmin } from "../scripts/admin";
+import { getAllUsuarios, eliminarUsuario, actualizarRolUsuario, type UsuarioAdmin } from "../scripts/admin";
+
 
 const AdminUsuarios: React.FC = () => {
     const [usuarios, setUsuarios] = useState<UsuarioAdmin[]>([]);
@@ -44,6 +45,27 @@ const AdminUsuarios: React.FC = () => {
         }
     };
 
+    const handleChangeRol = async (uuid: string, nuevoRol: string, nombre: string) => {
+        if (!confirm(`¿Estás seguro de que quieres cambiar el rol del usuario ${nombre}?`)){
+            return;
+        }
+
+        try {
+            await actualizarRolUsuario(uuid, nuevoRol);
+            alert("Rol de usuario cambiado correctamente")
+
+            setUsuarios(prevUsuarios => 
+                prevUsuarios.map(u =>
+                    u.uuid === uuid ? { ...u, rol: nuevoRol } : u
+                )
+            );
+
+        }catch (error) {
+            console.error(error);
+            alert("Ocurrió un error al intentar cambiar el rol")
+        }
+    };
+
     if(loading) return <div className="text-center mt-5">Cargando usuarios...</div>;
 
     return(
@@ -70,10 +92,17 @@ const AdminUsuarios: React.FC = () => {
                                     <td>{user.nombre} {isMe && "(Tú)"}</td>
                                     <td>{user.email}</td>
                                     <td>{user.phone || "N/A"}</td>
-                                    <td>
-                                        <span className={`badge ${user.rol === 'ADMINISTRADOR' ? 'bg-danger' : 'bg-primary'}`}>
-                                            {user.rol}
-                                        </span>
+                                    <td className="text-center">
+                                        <select 
+                                            className={`form-select form-select-sm ${user.rol === 'ADMINISTRADOR' ? 'border-danger text-danger' : 'border-primary text-primary'}`}
+                                            value={user.rol}
+                                            onChange={(e) => handleChangeRol(user.uuid, e.target.value, user.nombre)}
+                                            disabled={isMe}
+                                            title={isMe ? "No puedes cambiarte el rol a ti mismo" : "Cambiar rol de usuario"}
+                                        >
+                                            <option value="USUARIO">USUARIO</option>
+                                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                                        </select>
                                     </td>
                                     <td className="text-center">
                                         <button

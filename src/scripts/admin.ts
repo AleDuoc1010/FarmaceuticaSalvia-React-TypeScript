@@ -23,6 +23,13 @@ export const eliminarUsuario = async (uuid: string): Promise<void> => {
     await usuariosApi.delete(`/usuarios/${uuid}`);
 };
 
+export const actualizarRolUsuario = async (uuid: string, nuevoRol: string) => {
+    const response = await usuariosApi.patch(`/usuarios/${uuid}/rol`, {
+        nuevoRol: nuevoRol
+    });
+    return response.data;
+}
+
 export const esAdministrador = (): boolean => {
     const userStr = localStorage.getItem("usuario");
     if (!userStr) return false;

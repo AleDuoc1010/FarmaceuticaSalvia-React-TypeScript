@@ -84,6 +84,8 @@ export const AgregarCarrito: React.FC<Props> = ({ productoSku }) => {
 
     const requiereReceta = productoInfo?.pideReceta;
     const puedeAgregar = !requiereReceta || (requiereReceta && archivoReceta);
+    const incrementar = () => setCantidad(prev => prev + 1);
+    const decrementar = () => setCantidad(prev => (prev > 1 ? prev - 1 : 1));
 
     return (
         <div className="modal fade" id="agregarCarrito" tabIndex={-1} aria-hidden="true">
@@ -110,13 +112,34 @@ export const AgregarCarrito: React.FC<Props> = ({ productoSku }) => {
 
                                 <div className="mb-3">
                                     <label className="form-label">Cantidad</label>
-                                    <input 
-                                        type="number"
-                                        className="form-control"
-                                        min="1"
-                                        value={cantidad}
-                                        onChange={(e) => setCantidad(parseInt(e.target.value))}
-                                    />
+
+                                    <div className="input-group">
+
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-secondary"
+                                            onClick={decrementar}
+                                        >-</button>
+
+                                        <input 
+                                            type="number"
+                                            className="form-control text-center"
+                                            min="1"
+                                            value={cantidad}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value);
+                                                if(!isNaN(val) && val > 0) setCantidad(val);
+                                                else if(e.target.value === "") setCantidad(1);
+                                            }}
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-secondary"
+                                            onClick={incrementar}
+                                        >+</button>
+
+                                    </div>
                                 </div>
 
                                 {requiereReceta && (
